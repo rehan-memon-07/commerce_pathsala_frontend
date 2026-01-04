@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'sign_in_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../constants/theme_constants.dart';
+import 'sign_in_screen.dart';
+import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -14,10 +17,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
+      if (!mounted) return;
+
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        // ❌ Not logged in → Sign In
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const SignInScreen()),
+        );
+      } else {
+        // ✅ Logged in → Onboarding (role decide later)
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const OnboardingScreen()),
         );
       }
     });

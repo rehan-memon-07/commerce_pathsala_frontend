@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../constants/theme_constants.dart';
 import 'student_dashboard.dart';
 import 'teacher_dashboard.dart';
@@ -32,6 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       body: Column(
         children: [
+          /// 🔹 TOP NAV (Back / Dots / Skip)
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: ThemeConstants.lg,
@@ -57,10 +59,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   )
                 else
                   const SizedBox(width: 50),
+
                 Row(
                   children: List.generate(
                     2,
-                    (index) => Container(
+                        (index) => Container(
                       width: 8,
                       height: 8,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -73,11 +76,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                 ),
+
                 GestureDetector(
-                  onTap: () => _pageController.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  ),
+                  onTap: () => _pageController.jumpToPage(1),
                   child: const Text(
                     'Skip',
                     style: TextStyle(
@@ -90,6 +91,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
+
+          /// 🔹 PAGES
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -97,27 +100,46 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 _buildOnboardingPage(
                   title: 'Empowering Educators',
-                  description: 'Streamline attendance, create assignments, and track student progress effortlessly.',
+                  description:
+                  'Streamline attendance, create assignments, and track student progress effortlessly.',
                   icon: Icons.people_rounded,
-                  features: [
+                  features: const [
                     'Mark Attendance',
                     'Upload Assignments',
                     'Communicate with Parents',
                     'Track Student Progress',
                   ],
-                  isTeacher: true,
+                  onContinue: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TeacherDashboard(),
+                      ),
+                    );
+                  },
+                  buttonText: 'Continue as Teacher',
                 ),
+
                 _buildOnboardingPage(
                   title: 'Your Learning Journey',
-                  description: 'Track your attendance, view assignments, and access all your course materials.',
+                  description:
+                  'Track your attendance, view assignments, and access all your course materials.',
                   icon: Icons.book_rounded,
-                  features: [
+                  features: const [
                     'Track Attendance',
                     'View Assignments',
                     'Access Course Materials',
                     'Monitor Progress',
                   ],
-                  isTeacher: false,
+                  onContinue: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const StudentDashboard(),
+                      ),
+                    );
+                  },
+                  buttonText: 'Continue as Student',
                 ),
               ],
             ),
@@ -127,12 +149,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  /// 🔹 SINGLE PAGE UI (UNCHANGED)
   Widget _buildOnboardingPage({
     required String title,
     required String description,
     required IconData icon,
     required List<String> features,
-    required bool isTeacher,
+    required VoidCallback onContinue,
+    required String buttonText,
   }) {
     return SingleChildScrollView(
       child: Padding(
@@ -153,34 +177,64 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   color: ThemeConstants.primaryBlue,
                 ),
               ),
-            )
-                .animate()
-                .fadeIn(duration: 600.ms)
-                .scale(),
+            ).animate().fadeIn(duration: 600.ms).scale(),
+
             const SizedBox(height: 32),
+
             Text(
               title,
               style: Theme.of(context).textTheme.displayMedium,
               textAlign: TextAlign.center,
-            )
-                .animate()
-                .fadeIn(duration: 600.ms)
-                .slide(begin: const Offset(0, 0.3)),
+            ).animate().fadeIn(duration: 600.ms).slide(begin: const Offset(0, 0.3)),
+
             const SizedBox(height: 12),
+
             Text(
               description,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: ThemeConstants.textMedium,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: ThemeConstants.textMedium),
               textAlign: TextAlign.center,
-            )
-                .animate()
-                .fadeIn(duration: 700.ms)
-                .slide(begin: const Offset(0, 0.3)),
+            ).animate().fadeIn(duration: 700.ms).slide(begin: const Offset(0, 0.3)),
+
             const SizedBox(height: 32),
-            ...features.map((feature) => _buildFeatureItem(feature)),
+
+            ...features.map(_buildFeatureItem),
+
             const SizedBox(height: 40),
-            _buildActionButton(isTeacher),
+
+            GestureDetector(
+              onTap: onContinue,
+              child: Container(
+                height: 56,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: ThemeConstants.primaryBlue,
+                  borderRadius:
+                  BorderRadius.circular(ThemeConstants.radiusLg),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                      ThemeConstants.primaryBlue.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2),
+
             const SizedBox(height: 24),
           ],
         ),
@@ -200,12 +254,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: ThemeConstants.primaryBlue.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Center(
-              child: Icon(
-                Icons.check_rounded,
-                color: ThemeConstants.primaryBlue,
-                size: 18,
-              ),
+            child: const Icon(
+              Icons.check_rounded,
+              color: ThemeConstants.primaryBlue,
+              size: 18,
             ),
           ),
           const SizedBox(width: 12),
@@ -217,67 +269,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 600.ms)
-        .slideX();
-  }
-
-  Widget _buildActionButton(bool isTeacher) {
-    return GestureDetector(
-      onTap: () {
-        if (isTeacher) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const TeacherDashboard()),
-          );
-
-        } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const StudentDashboard()),
-          );
-        }
-      },
-      child: Container(
-        height: 56,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: ThemeConstants.primaryBlue,
-          borderRadius: BorderRadius.circular(ThemeConstants.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: ThemeConstants.primaryBlue.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (isTeacher) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const TeacherDashboard()),
-                );
-              } else {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const StudentDashboard()),
-                );
-              }
-            },
-            child: Center(
-              child: Text(
-                isTeacher ? 'Sign in as Teacher' : 'Sign in as Student',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    ).animate().fadeIn(duration: 600.ms).slideX();
   }
 }

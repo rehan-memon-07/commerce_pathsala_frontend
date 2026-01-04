@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "73174231270",
+    "project_id": "commerce-pathshala",
+    "storage_bucket": "commerce-pathshala.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73174231270:android:7afa3c831517d6529fb327",
+        "android_client_info": {
+          "package_name": "com.example.commerce_paathshala_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "73174231270-omhrlejt78n0mbgf81mfirtb53epit6a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.commerce_paathshala_app",
+            "certificate_hash": "733d9ea7da044f3351f7e7bb1eb9f90f84f162fe"
+          }
+        },
+        {
+          "client_id": "73174231270-s5tkm19no83t791gaj0t0rvcrk15l7fv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFhNLV32mbtlP_-lABvYZIVXIfttlU2WQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "73174231270-s5tkm19no83t791gaj0t0rvcrk15l7fv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "73174231270-gng17bb1krc2t8rgc387pdf0tv5i8qqh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.commercePaathshalaApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

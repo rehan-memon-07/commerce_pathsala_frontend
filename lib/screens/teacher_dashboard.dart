@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import '../constants/theme_constants.dart';
 import 'mark_attendance.dart';
 import 'new_assignment_form.dart';
@@ -15,108 +18,114 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   int _selectedIndex = 0;
   bool _sidebarOpen = false;
 
+  /// 🔥 PERMANENT LOGOUT
+  Future<void> _logout() async {
+    await GoogleSignIn().signOut();
+    await FirebaseAuth.instance.signOut();
+    // AuthGate will redirect automatically
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: ThemeConstants.primaryDark,
-        leading: GestureDetector(
-          onTap: () => setState(() => _sidebarOpen = !_sidebarOpen),
-          child: const Icon(Icons.menu_rounded),
+        title: const Text('Teacher Dashboard'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => setState(() => _sidebarOpen = !_sidebarOpen),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: ThemeConstants.lg),
-            child: GestureDetector(
-              onTap: () {},
-              child: const Icon(Icons.notifications_rounded),
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: _logout,
           ),
         ],
       ),
       body: Row(
         children: [
-          if (_sidebarOpen) _buildSidebar(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(ThemeConstants.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildGreetingCard(),
-                    const SizedBox(height: ThemeConstants.lg),
-                    _buildQuickActionCard(
-                      'Mark Attendance',
-                      Icons.check_circle_rounded,
-                      ThemeConstants.primaryBlue,
-                      () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const MarkAttendanceScreen()),
-                      ),
-                    ),
-                    const SizedBox(height: ThemeConstants.md),
-                    _buildQuickActionCard(
-                      'Upload Assignment',
-                      Icons.upload_rounded,
-                      Color(0xFF10B981),
-                      () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const NewAssignmentForm()),
-                      ),
-                    ),
-                    const SizedBox(height: ThemeConstants.md),
-                    _buildQuickActionCard(
-                      'View Attendance Summary',
-                      Icons.bar_chart_rounded,
-                      Color(0xFF8B5CF6),
-                      () {},
-                    ),
-                  ],
-                ),
-              ),
+          if (_sidebarOpen) _buildSidebar(user),
+          Expanded(child: _buildMainContent()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(ThemeConstants.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildGreetingCard(),
+          const SizedBox(height: ThemeConstants.lg),
+
+          _buildQuickActionCard(
+            'Mark Attendance',
+            Icons.check_circle_rounded,
+            ThemeConstants.primaryBlue,
+                () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MarkAttendanceScreen()),
             ),
+          ),
+
+          const SizedBox(height: ThemeConstants.md),
+
+          _buildQuickActionCard(
+            'Upload Assignment',
+            Icons.upload_rounded,
+            const Color(0xFF10B981),
+                () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NewAssignmentForm()),
+            ),
+          ),
+
+          const SizedBox(height: ThemeConstants.md),
+
+          _buildQuickActionCard(
+            'View Attendance Summary',
+            Icons.bar_chart_rounded,
+            const Color(0xFF8B5CF6),
+                () {},
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(User? user) {
     return Container(
       width: 250,
       color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: ThemeConstants.lg),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: ThemeConstants.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: ThemeConstants.primaryBlue,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: Colors.white,
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: ThemeConstants.primaryBlue,
+                  child: Text(
+                    user?.displayName?.substring(0, 1) ?? 'T',
+                    style: const TextStyle(color: Colors.white, fontSize: 22),
                   ),
                 ),
                 const SizedBox(height: ThemeConstants.md),
                 Text(
-                  'Mrs. Davison',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  user?.displayName ?? 'Teacher',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  'Teacher',
+                  user?.email ?? '',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -125,7 +134,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           const Divider(height: ThemeConstants.lg),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero,
               children: [
                 _buildSidebarItem('Dashboard', Icons.home_rounded, 0),
                 _buildSidebarItem('Classes', Icons.class_rounded, 1),
@@ -139,16 +147,22 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }
 
   Widget _buildSidebarItem(String title, IconData icon, int index) {
+    final isSelected = _selectedIndex == index;
+
     return ListTile(
       leading: Icon(
         icon,
-        color: _selectedIndex == index ? ThemeConstants.primaryBlue : ThemeConstants.textLight,
+        color: isSelected
+            ? ThemeConstants.primaryBlue
+            : ThemeConstants.textLight,
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: _selectedIndex == index ? ThemeConstants.primaryBlue : ThemeConstants.textMedium,
-          fontWeight: _selectedIndex == index ? FontWeight.w600 : FontWeight.w500,
+          color: isSelected
+              ? ThemeConstants.primaryBlue
+              : ThemeConstants.textMedium,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
         ),
       ),
       onTap: () => setState(() => _selectedIndex = index),
@@ -157,6 +171,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
   Widget _buildGreetingCard() {
     return Container(
+      padding: const EdgeInsets.all(ThemeConstants.lg),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(ThemeConstants.radiusLg),
@@ -168,20 +183,19 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(ThemeConstants.lg),
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: Color(0xFFFBB75F).withOpacity(0.1),
+              color: const Color(0xFFFBB75F).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.waving_hand_rounded,
               color: Color(0xFFFBB75F),
-              size: 32,
+              size: 28,
             ),
           ),
           const SizedBox(width: ThemeConstants.lg),
@@ -189,35 +203,34 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Good Morning, Mrs. Davison',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                'Welcome back!',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 4),
               Text(
-                'Tuesday, 24 October',
+                'Have a productive day',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 600.ms)
-        .slideY(begin: 0.2);
+    ).animate().fadeIn().slideY(begin: 0.2);
   }
 
   Widget _buildQuickActionCard(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
+      String title,
+      IconData icon,
+      Color color,
+      VoidCallback onTap,
+      ) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(ThemeConstants.radiusMd),
       onTap: onTap,
       child: Container(
+        padding: const EdgeInsets.all(ThemeConstants.lg),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(ThemeConstants.radiusMd),
@@ -229,7 +242,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             ),
           ],
         ),
-        padding: const EdgeInsets.all(ThemeConstants.lg),
         child: Row(
           children: [
             Container(
@@ -239,32 +251,22 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 28,
-              ),
+              child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(width: ThemeConstants.lg),
             Expanded(
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: ThemeConstants.textLight,
-            ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 16),
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 600.ms)
-        .slideY(begin: 0.2);
+    ).animate().fadeIn().slideY(begin: 0.2);
   }
 }

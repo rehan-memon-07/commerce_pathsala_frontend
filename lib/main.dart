@@ -1,26 +1,41 @@
+import 'package:commerce_paathshala_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+import 'firebase_options.dart';
+import 'auth/auth_gate.dart';
+
+Future<void> main() async {
+  // 🔥 REQUIRED for Firebase + plugins
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const EduPlatformApp());
 }
 
 class EduPlatformApp extends StatelessWidget {
-  const EduPlatformApp({Key? key}) : super(key: key);
+  const EduPlatformApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EduPlatform',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         useMaterial3: true,
+
         primaryColor: const Color(0xFF1F2937),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF2563EB),
           brightness: Brightness.light,
         ),
+
         textTheme: const TextTheme(
           displayLarge: TextStyle(
             fontSize: 32,
@@ -47,6 +62,8 @@ class EduPlatformApp extends StatelessWidget {
           ),
         ),
       ),
+
+      // 🔥 PERMANENT ROOT WIDGET
       home: const SplashScreen(),
     );
   }
