@@ -11,7 +11,7 @@ import 'package:commerce_paathshala_app/models/attendance_model.dart';
 
 class MockData {
   // ========== MOCK USERS ==========
-  static final User mockStudent = User(
+  static final AppUser mockStudent = AppUser(
     id: 'student_001',
     name: 'Brooklyn Simmons',
     email: 'brooklyn.simmons@school.com',
@@ -21,7 +21,7 @@ class MockData {
     createdAt: DateTime.now(), subject: '',
   );
 
-  static final User mockTeacher = User(
+  static final AppUser mockTeacher =AppUser(
     id: 'teacher_001',
     name: 'Mrs. Davison',
     email: 'mrs.davison@school.com',

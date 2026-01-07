@@ -9,10 +9,10 @@ import 'package:commerce_paathshala_app/models/user_model.dart';
 import 'package:commerce_paathshala_app/repositories/mock_data.dart';
 
 abstract class UserRepositoryBase {
-  Future<User?> loginWithGoogle(String googleToken);
-  Future<User?> getCurrentUser();
+  Future<AppUser?> loginWithGoogle(String googleToken);
+  Future<AppUser?> getCurrentUser();
   Future<void> logout();
-  Future<User?> getUserById(String userId);
+  Future<AppUser?> getUserById(String userId);
 }
 
 class UserRepository implements UserRepositoryBase {
@@ -21,7 +21,7 @@ class UserRepository implements UserRepositoryBase {
   // static const String _baseUrl = 'https://your-api.com/api';
 
   @override
-  Future<User?> loginWithGoogle(String googleToken) async {
+  Future<AppUser?> loginWithGoogle(String googleToken) async {
     try {
       // TODO: Send POST request to backend: /api/auth/google-login
       // with payload: { 'googleToken': googleToken }
@@ -40,7 +40,7 @@ class UserRepository implements UserRepositoryBase {
   }
 
   @override
-  Future<User?> getCurrentUser() async {
+  Future<AppUser?> getCurrentUser() async {
     try {
       // TODO: Send GET request to backend: /api/auth/current-user
       // Include authentication token in headers
@@ -67,7 +67,7 @@ class UserRepository implements UserRepositoryBase {
   }
 
   @override
-  Future<User?> getUserById(String userId) async {
+  Future<AppUser?> getUserById(String userId) async {
     try {
       // TODO: Send GET request to backend: /api/users/$userId
       

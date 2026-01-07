@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../constants/theme_constants.dart';
+import '../models/attendance_model.dart';
 import '../models/user_model.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
@@ -14,23 +15,70 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   String _selectedClass = 'Class 10 - A';
   String _selectedSubject = 'Mathematics';
   DateTime _selectedDate = DateTime.now();
-  
-  final List<AttendanceRecord> _students = [
-    AttendanceRecord(studentId: '1', studentName: 'Ananya Sharma', rollNo: '01', isPresent: true),
-    AttendanceRecord(studentId: '2', studentName: 'Rohan Verma', rollNo: '02', isPresent: false),
-    AttendanceRecord(studentId: '3', studentName: 'Priya Singh', rollNo: '03', isPresent: true),
-    AttendanceRecord(studentId: '4', studentName: 'Vikram Rathore', rollNo: '04', isPresent: false),
-    AttendanceRecord(studentId: '5', studentName: 'Aisha Khan', rollNo: '05', isPresent: false),
+
+  late final List<Attendance> _students = [
+    Attendance(
+      id: '1',
+      studentId: '1',
+      studentName: 'Ananya Sharma',
+      subject: _selectedSubject,
+      className: _selectedClass,
+      date: _selectedDate,
+      isPresent: true,
+    ),
+    Attendance(
+      id: '2',
+      studentId: '2',
+      studentName: 'Rohan Verma',
+      subject: _selectedSubject,
+      className: _selectedClass,
+      date: _selectedDate,
+      isPresent: false,
+    ),
+    Attendance(
+      id: '3',
+      studentId: '3',
+      studentName: 'Priya Singh',
+      subject: _selectedSubject,
+      className: _selectedClass,
+      date: _selectedDate,
+      isPresent: true,
+    ),
+    Attendance(
+      id: '4',
+      studentId: '4',
+      studentName: 'Vikram Rathore',
+      subject: _selectedSubject,
+      className: _selectedClass,
+      date: _selectedDate,
+      isPresent: false,
+    ),
+    Attendance(
+      id: '5',
+      studentId: '5',
+      studentName: 'Aisha Khan',
+      subject: _selectedSubject,
+      className: _selectedClass,
+      date: _selectedDate,
+      isPresent: false,
+    ),
+
   ];
 
   void _toggleAttendance(int index) {
     setState(() {
-      _students[index] = AttendanceRecord(
-        studentId: _students[index].studentId,
-        studentName: _students[index].studentName,
-        rollNo: _students[index].rollNo,
-        isPresent: !_students[index].isPresent,
+      final current = _students[index];
+      _students[index] = Attendance(
+        id: current.id,
+        studentId: current.studentId,
+        studentName: current.studentName,
+        subject: current.subject,
+        className: current.className,
+        date: current.date,
+        isPresent: !current.isPresent,
+        remarks: current.remarks,
       );
+
     });
   }
 
@@ -275,7 +323,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
                       ),
                 ),
                 Text(
-                  'Roll No: ${student.rollNo}',
+                  'Roll No: ${student.studentId}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

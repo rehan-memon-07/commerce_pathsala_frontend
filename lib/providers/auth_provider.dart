@@ -5,6 +5,7 @@
 // Provider Pattern: Automatically notifies listeners when state changes
 // Usage: context.watch<AuthProvider>() or context.read<AuthProvider>()
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:commerce_paathshala_app/models/user_model.dart';
 import 'package:commerce_paathshala_app/repositories/user_repository.dart';
@@ -17,13 +18,13 @@ class AuthProvider extends ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
 
   // State variables
-  User? _currentUser;
+  AppUser? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
   String? _authToken; // TODO: Store in SharedPreferences for persistence
 
   // Getters - expose state to UI
-  User? get currentUser => _currentUser;
+  AppUser? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
